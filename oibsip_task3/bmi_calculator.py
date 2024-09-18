@@ -2,7 +2,7 @@
 """
 This module provides a BMI (Body Mass Index) calculator with user interaction.
 
-It calculates the BMI based on user input for weight and height,
+It will calculate the BMI based on user input for weight and height,
 and categorizes the result into standard health ranges.
 """
 
@@ -10,7 +10,7 @@ def calculate_bmi(weight, height):
     """
     Calculate the BMI given weight and height.
 
-    Args:
+    Args/Params:
     weight (float): Weight in kilograms
     height (float): Height in meters
 
@@ -23,13 +23,13 @@ def calculate_bmi(weight, height):
 
 def categorize_bmi(bmi):
     """
-    Categorize the BMI into standard health ranges.
+    This function categorize the BMI into standard health ranges.
 
-    Args:
+    Args/Params:
     bmi (float): Calculated BMI value
 
     Returns:
-    str: BMI category (Underweight, Normal Weight, Overweight, or Obese)
+    str: BMI category (Underweight, Normal Weight, Overweight, or Obesity)
     """
     if bmi < 18.5:
         return "Underweight"
@@ -38,12 +38,12 @@ def categorize_bmi(bmi):
     elif 25 <= bmi < 29.9:
         return "Overweight"
     else:
-        return "Obese"
+        return "Obesity"
 
 
 def main():
     """
-    Main function to run the BMI calculator with user interaction.
+    This is the main function to run the BMI calculator.
     """
     print("Welcome to the BMI Calculator!")
     name = input("What's your name? ")
