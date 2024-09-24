@@ -31,37 +31,58 @@ def categorize_bmi(bmi):
     Returns:
     str: BMI category (Underweight, Normal Weight, Overweight, or Obesity)
     """
-    if bmi < 18.5:
-        return "Underweight"
-    elif 18.5 <= bmi < 24.9:
-        return "Normal Weight"
-    elif 25 <= bmi < 29.9:
-        return "Overweight"
+    if bmi < 16.0:
+        return "underweight (Severe Thinness)"
+    elif 16.0 <= bmi < 17.0:
+        return "underweight (Moderate Thinness)"
+    elif 17.0 <= bmi < 18.5:
+        return "underweight (Mild Thinness)"
+    elif 18.5 <= bmi < 25.0:
+        return "Normal weight"
+    elif 25.0 <= bmi < 30.0:
+        return "Overweight (Pre-obese)"
+    elif 30.0 <= bmi < 35.0:
+        return "Obesity (Class I)"
+    elif 35.0 <= bmi < 40.0:
+        return "Obesity (Class II)"
     else:
-        return "Obesity"
+        return "Obesity (Class III)"
 
 
 def main():
     """
-    This is the main function to run the BMI calculator.
+    This is the main function that contains the primary 
+    logic to run the BMI calculator.
     """
     print("Welcome to the BMI Calculator!")
     name = input("What's your name? ")
     print(f"Hello, {name}! Let's calculate your BMI.")
 
-    while True:
-        try:
-            weight = float(input("Please enter your weight in kilograms: "))
-            height = float(input("Please enter your height in meters: "))
-            if weight <= 0 or height <= 0:
-                raise ValueError
-            break
-        except ValueError:
-            print("Invalid input. Please enter positive numbers for weight and height.")
+    while True:  # allows the program to run continuously until the user decides to exit.
+        while True:
+            try:
+                weight = float(input("Kindly enter your weight in kilograms: "))
+                height = float(input("Kindly enter your height in meters: "))
+                if weight <= 0 or height <= 0:
+                    raise ValueError  # Used to trigger the exception
+                break
+            except ValueError:
+                print("Invalid input. Please enter positive numbers for weight and height.")
 
-    bmi = calculate_bmi(weight, height)
-    category = categorize_bmi(bmi)
-    print(f"{name}, your BMI is {bmi} and you are categorized as {category}.")
+        bmi = calculate_bmi(weight, height)
+        category = categorize_bmi(bmi)
+        print(f"Dear {name}, your BMI is {bmi:.2f} and you are categorized as {category}.")
+
+        # Ask the user if they want to calculate again
+        while True:
+            exit_prompt = input("Would you like to calculate another BMI? (yes/no): ").strip().lower()
+            if exit_prompt in ('yes', 'y'):
+                break  # repeat the BMI calculation
+            elif exit_prompt in ('no', 'n'):
+                print("Thank you for using the BMI Calculator. Goodbye!")
+                return  # exit the program
+            else:
+                print("Invalid input. Please enter 'yes/no'.")
 
 
 if __name__ == "__main__":
