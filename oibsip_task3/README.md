@@ -25,7 +25,7 @@ This project provides a Command Line Body Mass Index (BMI) calculator written in
 3. Open a terminal and navigate to the directory containing `bmi_calculator.py`.
 
     ```bash
-   git clone https://github.com/eadewusic/OIBSIP.git
+   git clone https://github.com/AbrahamAlgorithm/OIBSIP.git
    cd oibsip_task3
    ```
 
