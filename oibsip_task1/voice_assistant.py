@@ -1,134 +1,162 @@
-#!/usr/bin/env python3
-"""
-Voice Assistant Module
-
-This module implements a basic voice assistant that can respond to simple voice commands.
-It uses speech recognition to interpret user input and text-to-speech to provide responses.
-
-The assistant can perform tasks such as greeting the user, telling the time and date,
-and performing basic web searches.
-"""
-
+from selenium_web import info
+import pyttsx3 as p
 import speech_recognition as sr
-import pyttsx3
+from send_email import *
+from YT_automation import *
 import datetime
-import requests
-import sys
+import randfacts
+import yagmail
 
-class VoiceAssistant:
-    """
-    A class representing a basic voice assistant.
+engine = p.init()
+rate = engine.getProperty('rate')
+engine.setProperty('rate', 200)
+voices = engine.getProperty('voices')
+engine.setProperty('voice', voices[1].id)
 
-    This class encapsulates the functionality of the voice assistant,
-    including speech recognition, text-to-speech, and command processing.
-    """
+def speak(text):
+    engine.say(text)
+    engine.runAndWait()
 
-    def __init__(self):
-        """
-        Initialize the voice assistant with speech recognition and text-to-speech engines.
-        """
-        self.recognizer = sr.Recognizer()
+def wish_me():
+    hour = int(datetime.datetime.now().hour)
+    if hour > 0 and hour < 12:
+        return "morning"
+    elif hour >= 12 and hour < 16:
+        return "afternoon"
+    else:
+        return "evening"
+
+r = sr.Recognizer()
+
+with sr.Microphone() as source:
+    r.energy_threshold = 10000
+    r.adjust_for_ambient_noise(source, 1.2)
+    print("listening...")
+    audio = r.listen(source)
+    text = r.recognize_google(audio)  #made use of google api
+    print(text)
+
+greetings = ["hello", "hi", "hey"]
+
+if any(greeting in text.lower() for greeting in greetings):
+    speak(f"Hi Abraham, good {wish_me()}. My name is Voxia and I'm your Voice Assistant.")
+else:
+    speak("Sorry, I didn't catch that but no worries")
+
+def get_date_and_time():
+    today_date = datetime.datetime.now()
+    date_announcement = today_date.strftime("%A, %B %d, %Y")
+    time_announcement = today_date.strftime("%I:%M %p")
+    seconds_announcement = today_date.strftime("%S")
+    speak(f"Today is {date_announcement} and it's currently {time_announcement} with {seconds_announcement} seconds.")
+
+get_date_and_time()
+
+speak("How are you doing today?")
+
+with sr.Microphone() as source:
+    r.energy_threshold = 10000
+    r.adjust_for_ambient_noise(source, 1.2)
+    print("listening...")
+    audio = r.listen(source)
+    text = r.recognize_google(audio)
+    print(text)
+
+if "what" and "about" and "you" in text:
+    speak("Thanks for asking, I am doing just fine!")
+speak("What can I do for you at the moment?")
+
+with sr.Microphone() as source:
+    r.energy_threshold = 10000
+    r.adjust_for_ambient_noise(source, 1.2)
+    print("listening...")
+    audio = r.listen(source)
+    text2 = r.recognize_google(audio)
+
+if "information" in text2:
+    speak("What exactly do you need information about?")
+
+    with sr.Microphone() as source:
+        r.energy_threshold = 10000
+        r.adjust_for_ambient_noise(source, 1.2)
+        print("listening...")
+        audio = r.listen(source)
+        infor = r.recognize_google(audio)
+
+    print("Searching {} on Google".format(infor))
+    speak("Searching {} on Google".format(infor))
+
+    assist = info()
+    assist.get_info(infor)
+
+elif "play" and "video" in text2:
+    speak("Which video do you want me to play for you?")
+    with sr.Microphone() as source:
+        r.energy_threshold = 10000
+        r.adjust_for_ambient_noise(source, 1.2)
+        print("listening...")
+        audio = r.listen(source)
+        vid = r.recognize_google(audio)
+
+    print("Playing {} on YouTube".format(vid))
+    speak("Playing {} on YouTube".format(vid))
+
+    assist = poem()
+    assist.play(vid)
+
+elif "send" and "email" in text2:
+    speak("I am happy to send the email for you")
+
+    with sr.Microphone() as source:
+        print("clearing background noise...")
+        r.adjust_for_ambient_noise(source, 1.2)
+        print("listening...")
+        audio = r.listen(source)
         try:
-            self.engine = pyttsx3.init()
-        except ImportError:
-            print("Error: pyttsx3 not found. Make sure it's installed.")
-            sys.exit(1)
-        except RuntimeError:
-            print("Error: Failed to initialize the text-to-speech engine.")
-            print("Make sure you have the necessary system dependencies installed.")
-            print("On Ubuntu/Debian, try: sudo apt-get install libespeak1 espeak")
-            sys.exit(1)
+            email_content = r.recognize_google(audio)
+            print(f"Email content: {email_content}")
 
-    def listen(self):
-        """
-        Listen for user input through the microphone.
-        
-        Returns:
-            str: The recognized speech as text, or an empty string if recognition fails.
-        """
-        with sr.Microphone() as source:
-            print("Listening...")
-            audio = self.recognizer.listen(source)
-            try:
-                text = self.recognizer.recognize_google(audio)
-                print(f"You said: {text}")
-                return text.lower()
-            except sr.UnknownValueError:
-                print("Sorry, I didn't catch that.")
-                return ""
-            except sr.RequestError:
-                print("Sorry, there was an error with the speech recognition service.")
-                return ""
+        except sr.UnknownValueError:
+            print("Sorry, I couldn't understand your speech. Please try again.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
-    def speak(self, text):
-        """
-        Convert text to speech and play it.
-        
-        Args:
-            text (str): The text to be spoken.
-        """
-        print(f"Assistant: {text}")
-        try:
-            self.engine.say(text)
-            self.engine.runAndWait()
-        except:
-            primt("Error: failed to speak. Check audio output")
+    print("Sending e-mail now via Gmail".format(text2))
+    speak("Sending e-mail now via Gmail".format(text2))
 
-    def process_command(self, command):
-        """
-        Process the user's command and respond accordingly.
-        
-        Args:
-            command (str): The user's command as text.
-        """
-        if "hello" in command:
-            self.speak("Hello! How can I help you?")
-        elif "time" in command:
-            current_time = datetime.datetime.now().strftime("%I:%M %p")
-            self.speak(f"The current time is {current_time}")
-        elif "date" in command:
-            current_date = datetime.date.today().strftime("%B %d, %Y")
-            self.speak(f"Today's date is {current_date}")
-        elif "search" in command:
-            query = command.replace("search", "").strip()
-            self.web_search(query)
-        else:
-            self.speak("I'm sorry, I don't understand that command.")
+    send_email(email_content)
 
-    def web_search(self, query):
-        """
-        Perform a basic web search using the DuckDuckGo API.
-        
-        Args:
-            query (str): The search query.
-        """
-        url = f"https://api.duckduckgo.com/?q={query}&format=json"
-        response = requests.get(url)
-        if response.status_code == 200:
-            data = response.json()
-            if data["Abstract"]:
-                self.speak(data["Abstract"])
-            else:
-                self.speak("I'm sorry, I couldn't find any relevant information.")
-        else:
-            self.speak("I'm sorry, I encountered an error while searching.")
+elif "fact" or "facts" in text2:
+    speak("Sure Abraham,")
+    x = randfacts.get_fact()
+    print(x)
+    speak("Did you know that, " + x)
 
-    def run(self):
-        """
-        Run the voice assistant in a loop, continuously listening for commands.
-        """
-        self.speak("Hello! I'm your voice assistant. How can I help you?")
-        while True:
-            command = self.listen()
-            if command:
-                self.process_command(command)
+with sr.Microphone() as source:
+    r.energy_threshold = 10000
+    r.adjust_for_ambient_noise(source, 1.2)
+    print("listening...")
+    audio = r.listen(source)
+    text = r.recognize_google(audio)
+    print(text)
 
-if __name__ == "__main__":
-    try:
-        assistant = VoiceAssistant()
-        assistant.run()
-    except KeyboardInterrupt:
-        print("\nGoodbye!")
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        sys.exit(1)
+speak("You're welcome. Anything else?")
+
+with sr.Microphone() as source:
+    r.energy_threshold = 10000
+    r.adjust_for_ambient_noise(source, 1.2)
+    print("listening...")
+    audio = r.listen(source)
+    text = r.recognize_google(audio)
+    print(text)
+
+exit_response = ["no", "not at all", "not at the moment"]   #acceptable4 exit response
+
+if any(response in text.lower() for response in exit_response):
+    print("Alrighty, I'm going to sleep now. Bye!")
+    speak("Alrighty, I'm going to sleep now. Bye!")
+else:
+    print("Bye!")
+    speak("I didn't hear you but I'm going to sleep anyways. Bye!")
+
+exit(0)
